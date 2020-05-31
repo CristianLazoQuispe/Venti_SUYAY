@@ -18,59 +18,73 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav">
         <li class="nav-item active">
-          <a class="nav-link" href="#">Inicio <span class="sr-only">(current)</span></a>
+          <a class="nav-link" href="/dashboard">Inicio <span class="sr-only">(current)</span></a>
         </li>
-        <!-- <li class="nav-item">
-          <a class="nav-link" href="#">Features</a>
-        </li> -->
+        <li class="nav-item">
+          <a class="nav-link" href="/logout">Cerrar sesión</a>
+        </li>
       </ul>
     </div>
   </nav>
 
-  <form class="col-12 p-2" method="GET">
-    <select class="custom-select" name="hospital" id="hospital" onchange="filter(this)">
-      {% for hospital in hospitales %}
-        <option value="{{ hospital.id }}">{{ hospital.name }}</option>
-      {% endfor %}
-    </select>
-    <select class="custom-select" name="ambiente" id="ambiente">
-    </select>
-    <script>
-      window.onload=()=>{
-        filter(document.getElementById("hospital"))
-      }
-      async function filter(el){
-        console.log(el.value)
-        let ambientes_request = await fetch("/ajax/ambiente?hospital="+el.value)
-        let data = await ambientes_request.json()
-        let ambientes = data.data
-        innerOption(ambientes, document.getElementById("ambiente"))
-      }
-
-      function innerOption(array, el){
-        let text = ""
-        for(let ar of array){
-          text+=`<option value="${ar.id}">${ar.name}</option>`
+  {% if message %}
+      <div class="alert alert-{{message.type}}" role="alert">
+        {{message.message}}
+      </div>
+  {% endif %}
+  
+  <div class="col-12 p-2" style="display:flex;flex-wrap: wrap;">
+    <form class="col-10 p-2 col-sm-12" method="GET">
+      <select class="custom-select" name="hospital" id="hospital" onchange="filter(this)">
+        {% for hospital in hospitales %}
+          <option value="{{ hospital.id }}">{{ hospital.name }}</option>
+        {% endfor %}
+      </select>
+      <select class="custom-select" name="ambiente" id="ambiente">
+      </select>
+      <script>
+        window.onload=()=>{
+          filter(document.getElementById("hospital"))
         }
-        el.innerHTML = text
-      }
-    </script>
-    <button class="btn btn-primary" type="submit">Buscar</button>
-  </form>
+        async function filter(el){
+          console.log(el.value)
+          let ambientes_request = await fetch("/ajax/ambiente?hospital="+el.value)
+          let data = await ambientes_request.json()
+          let ambientes = data.data
+          innerOption(ambientes, document.getElementById("ambiente"))
+        }
 
+        function innerOption(array, el){
+          let text = ""
+          for(let ar of array){
+            text+=`<option value="${ar.id}">${ar.name}</option>`
+          }
+          el.innerHTML = text
+        }
+      </script>
+      <button class="btn btn-primary" type="submit">Buscar</button>
+    </form>
+    {% if respiradores_not_have %}
+      <div class="col-2 p-2 col-sm-12">
+        <button class="btn btn-info" data-toggle="modal" data-target="#exampleModal">Asignar respirador</button>
+      </div>
+    {% endif %}
+  </div>
+  <br/>
   {% if respiradores %}
-    <form class="col-12" method="GET">
+    <form class="col-12" method="GET" action="/dashboard/preview">
       {% for respirador in respiradores %}
-        <label class="card" style="width: 18rem;">
+        <label class="card" style="width: 18rem;display: inline-block;">
           <img class="card-img-top" src="{{respirador.url}}" alt="Card image cap">
           <div class="card-body">
             <h5 class="card-title">{{respirador.name}}</h5>
-            <input type="checkbox" name="{{respirador.id}}" > <span class="card-text">Codigo : {{respirador.id}}</span>
+            <input type="checkbox" name="respiradores" value="{{respirador.id}}" > <span class="card-text">Codigo : {{respirador.id}}</span>
             <br>
           </div>
         </label>
       {% endfor %}
-      <br>
+      <br/>
+      <br/>
       <button class="btn btn-primary" type="submit">Listar</button>
     </form>
   {% else %}
@@ -80,4 +94,40 @@
       </center>
     </div>
   {% endif %}
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Asignar respirador</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form class="col-10 p-2 col-sm-12" method="POST">
+          {% csrf_token %}
+          <select class="custom-select" name="respirador" id="respirador_not_have">
+            {% for respirador in respiradores_not_have %}
+              <option value="{{ respirador.id }}">{{ respirador.name }} - Codigo {{ respirador.id }}</option>
+            {% endfor %}
+          </select>
+          <button class="btn btn-primary" type="submit">Asignar</button>
+        </form>
+      </div>
+      {% comment %} <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div> {% endcomment %}
+    </div>
+  </div>
+</div>
+
+
+
+
 {% endblock %}
+
+

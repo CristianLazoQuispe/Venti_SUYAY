@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+  <style>
+    #logo {
+      height:50px;
+      margin-right:1%;
+    }
+  </style>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark col-12">
+    <img id="logo" src="https://scontent.flim21-2.fna.fbcdn.net/v/t1.0-9/58711623_291181928450310_5112829485493780480_o.png?_nc_cat=104&_nc_sid=09cbfe&_nc_eui2=AeGNQ7ZTaXvu_dBkhQd8bIBjOPVLxdJ-Ov049UvF0n46_cP6FWQEmrBdPSC_ZbnaSw2dchSfL0YonWv-bXdZq4-h&_nc_ohc=i64LglvEcVoAX8Ry2cN&_nc_ht=scontent.flim21-2.fna&oh=84cfbca409799b9f126cffba9cc96111&oe=5EF8B409">
+    <a class="navbar-brand" href="#">Adathink Lab</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item active">
+          <a class="nav-link" href="/dashboard">Inicio <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/logout">Cerrar sesión</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <br/>
+  {% if respiradores %}
+      {% for respirador in respiradores %}
+        <label class="card" style="width: 18rem;display: inline-block;">
+          <img class="card-img-top" src="{{respirador.url}}" alt="Card image cap">
+          <div class="card-body">
+            <h5 class="card-title">{{respirador.name}}</h5>
+            <input type="checkbox" name="respiradores" value="{{respirador.id}}" > <span class="card-text">Codigo : {{respirador.id}}</span>
+            <br>
+          </div>
+        </label>
+      {% endfor %}
+  {% else %}
+    <div class="container col-2 col-offset-5">
+      <center>
+        No hay resultado
+      </center>
+    </div>
+  {% endif %}
+{% endblock %}
